@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "113955999228",
+    "project_id": "todoappriverpod",
+    "storage_bucket": "todoappriverpod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113955999228:android:8a138a6d544ad5bc1bb679",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBPqZJwnW7XuH86hUhhdg9GGOYe5V2nKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113955999228:android:69bb649b1f47c2e21bb679",
+        "android_client_info": {
+          "package_name": "com.example.flutter_riverpod_stream_todo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBPqZJwnW7XuH86hUhhdg9GGOYe5V2nKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113955999228:android:d1f595f9c515291d1bb679",
+        "android_client_info": {
+          "package_name": "com.example.flutter_riverpod_to_do_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBPqZJwnW7XuH86hUhhdg9GGOYe5V2nKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
