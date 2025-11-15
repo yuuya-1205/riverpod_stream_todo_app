@@ -12,6 +12,7 @@ class TodoNotifier extends StreamNotifier<List<Todo>> {
   Stream<List<Todo>> build() {
     final stream = ref.watch(todoRepositoryProvider).fetchTodos();
     return stream.map(
+      // TodoDtoをTodoに変換する
       (todos) => todos.map((todo) => Todo(title: todo.title)).toList(),
     );
   }
