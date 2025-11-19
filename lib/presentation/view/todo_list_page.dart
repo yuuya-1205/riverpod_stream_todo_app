@@ -11,7 +11,7 @@ class TodoListPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Todo List')),
       body: Consumer(
         builder: (context, ref, child) {
-          final stream = ref.watch(todoNotifierProvider).value;
+          final stream = ref.watch(streamTodoNotifierProvider).value;
           return Column(
             children: [
               ListView.builder(
@@ -23,7 +23,7 @@ class TodoListPage extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  ref.read(todoNotifierProvider.notifier).addTodo('test');
+                  ref.read(streamTodoNotifierProvider.notifier).addTodo('test');
                 },
                 child: const Text('add Todo'),
               ),
