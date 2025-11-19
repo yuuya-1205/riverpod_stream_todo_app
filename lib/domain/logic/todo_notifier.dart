@@ -3,11 +3,12 @@ import 'package:flutter_riverpod_stream_todo_app/data/repository/todo_repository
 import 'package:flutter_riverpod_stream_todo_app/domain/model/todo.dart';
 
 // Provider定義
-final todoNotifierProvider = StreamNotifierProvider<TodoNotifier, List<Todo>>(
-  () => TodoNotifier(),
-);
+final streamTodoNotifierProvider =
+    StreamNotifierProvider<StreamTodoNotifier, List<Todo>>(
+      () => StreamTodoNotifier(),
+    );
 
-class TodoNotifier extends StreamNotifier<List<Todo>> {
+class StreamTodoNotifier extends StreamNotifier<List<Todo>> {
   @override
   Stream<List<Todo>> build() {
     final stream = ref.watch(todoRepositoryProvider).fetchTodos();
