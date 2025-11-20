@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod_stream_todo_app/data/dto/todo_dto.dart';
+import 'package:flutter_riverpod_stream_todo_app/data/repository/todo_repository.dart';
 import 'package:flutter_riverpod_stream_todo_app/domain/logic/async_todo_notifier.dart';
 import 'package:flutter_riverpod_stream_todo_app/domain/model/todo.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,54 +10,65 @@ import '../utils/create_container.dart';
 import '../utils/mocks.mocks.dart';
 
 void main() {
-  late MockTodoNotifier mockTodoNotifier;
+  late MockTodoRepository mockTodoRepository;
   setUp(() {
-    mockTodoNotifier = MockTodoNotifier();
+    mockTodoRepository = MockTodoRepository();
   });
-  // ここのテストは？
-  test('build todo notifier', () async {
-    // 前提
-    // 期待値
-
-    // モックを設定する。
-    // 取得してきた値がTodo(title: 'test') を確認するテスト。
-    // ここが悪そう、build()が呼ばれた時にTodo(title: 'test') を返すようにしている。
+  test('build() は Repository からデータを取得し、TodoDto を Todo に変換する', () async {
+    // Repository の fetchTodos() が返す Stream をモックする。
+    // これが前提かな？
     when(
-      mockTodoNotifier.build(),
-    ).thenAnswer((_) => Future.value([Todo(title: 'test')]));
+      mockTodoRepository.fetchTodos(),
+    ).thenAnswer((_) => Stream.value([TodoDto(title: 'test')]));
 
+    // Repository をモックに置き換えた Container を作成する。
     final container = createContainer(
       overrides: [
-        asyncTodoNotifierProvider.overrideWith(() => mockTodoNotifier),
+        todoRepositoryProvider.overrideWith((_) => mockTodoRepository),
       ],
     );
 
-    // 初期状態を確認するテスト
-    final initialTodoNotifier =
-        container.read(asyncTodoNotifierProvider).valueOrNull ?? [];
-    expect(initialTodoNotifier, []);
+    // Notifier の build() を実行する（実際の Notifier を使用）。
+    final notifier = container.read(asyncTodoNotifierProvider.notifier);
+    await notifier.future;
 
-    // todoを追加するテスト
-    await container.read(asyncTodoNotifierProvider.notifier).addTodo('test');
-    final todosAfterAdd =
-        container.read(asyncTodoNotifierProvider).valueOrNull ?? [];
+    // 状態が正しく変換されているか確認する。
+    final state = container.read(asyncTodoNotifierProvider);
+    expect(state.value, [Todo(title: 'test')]);
 
-    // todoを追加する。
-    // ここで追加しているのになぜテストが通らないのか？
-    // final todos = await todoNotifier.build();
-    expect(todosAfterAdd, [Todo(title: 'test')]);
+    // Repository の fetchTodos() が呼ばれたことを確認する。
+    verify(mockTodoRepository.fetchTodos()).called(1);
   });
 
-  test('add Todo', () async {
-    // 前提 mockTodoNotifierが空のリストを返すようにしている。
-    // 期待値 mockTodoNotifierが[Todo(title: 'test')]を返すようにしている。
+  test('addTodo', () async {
+    when(
+      mockTodoRepository.fetchTodos(),
+    ).thenAnswer((_) => Stream.value([TodoDto(title: 'test')]));
 
-    // stubのstateがダメって言われている。
-    // そもそもstubってなんだっけ？
-    // stubはモックのメソッドを呼び出した時に、そのメソッドが呼び出されたことを確認するためのもの。
-    when(mockTodoNotifier.addTodo('test')).thenAnswer((_) => Future.value());
+    // Repository をモックに置き換えた Container を作成する。
+    final container = createContainer(
+      overrides: [
+        todoRepositoryProvider.overrideWith((_) => mockTodoRepository),
+      ],
+    );
 
-    await mockTodoNotifier.addTodo('test');
-    expect(mockTodoNotifier.state.value, [Todo(title: 'test')]);
+    // Notifier の build() を実行する（実際の Notifier を使用）。
+    final notifier = container.read(asyncTodoNotifierProvider.notifier);
+    await notifier.future;
+
+    // 状態が正しく変換されているか確認する。
+    final state = container.read(asyncTodoNotifierProvider);
+    expect(state.value, [Todo(title: 'test')]);
+
+    // addTodoを呼び出して、TodoDto(title: 'test2')を追加する。
+    notifier.addTodo('test2');
+
+    when(
+      mockTodoRepository.fetchTodos(),
+    ).thenAnswer((_) => Stream.value([TodoDto(title: 'test2')]));
+
+    // fetchTodosを呼び出して、TodoDto(title: 'test2')が追加されていることを確認する。
+    final todos = await mockTodoRepository.fetchTodos().first;
+    expect(todos, [TodoDto(title: 'test2')]);
   });
 }
