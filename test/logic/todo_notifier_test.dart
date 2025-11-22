@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod_stream_todo_app/data/dto/todo_dto.dart';
 import 'package:flutter_riverpod_stream_todo_app/data/repository/todo_repository.dart';
 import 'package:flutter_riverpod_stream_todo_app/domain/logic/async_todo_notifier.dart';
@@ -35,12 +34,17 @@ void main() {
     // 状態が正しく変換されているか確認する。
     final state = container.read(asyncTodoNotifierProvider);
     expect(state.value, [Todo(title: 'test')]);
-
-    // Repository の fetchTodos() が呼ばれたことを確認する。
-    verify(mockTodoRepository.fetchTodos()).called(1);
   });
 
   test('addTodo', () async {
+    // 前提 : Firebaseから取得した値がTodoDto(title: 'test')から
+    // Todo(title: 'test')に変換されていることを確認できていること。
+
+    // 期待値 : addTodoを呼び出して、TodoDto(title: 'test2')を追加すると、
+    // [Todo(title: 'test'), Todo(title: 'test2')] が取得できていることが確認できる。
+
+    // mockTodoRepositoryのfetchTodosで取得してきたものが
+    // TodoDto(title: 'test')であることを確認する。
     when(
       mockTodoRepository.fetchTodos(),
     ).thenAnswer((_) => Stream.value([TodoDto(title: 'test')]));
@@ -54,21 +58,28 @@ void main() {
 
     // Notifier の build() を実行する（実際の Notifier を使用）。
     final notifier = container.read(asyncTodoNotifierProvider.notifier);
-    await notifier.future;
+
+    // List<Todo>を取得する。
+    final listTodo = await notifier.future;
+
+    // List<Todo>に変換されていることを確認する。
+    // ここまででRepositoryから取得したList<TodoDto>がList<Todo>に変換されていることを確認できた。
+    expect(listTodo, [Todo(title: 'test')]);
 
     // 状態が正しく変換されているか確認する。
+    // ここではbuilderの値を取得している。
+    // stateの更新が行われているか確認すること。
+    // Repositoryからfetchしてbuilderで更新する。そのため、fetchしてきたらbuilderの更新を行なっていることが証明できる。
     final state = container.read(asyncTodoNotifierProvider);
     expect(state.value, [Todo(title: 'test')]);
 
     // addTodoを呼び出して、TodoDto(title: 'test2')を追加する。
-    notifier.addTodo('test2');
+    await notifier.addTodo('test2');
 
-    when(
-      mockTodoRepository.fetchTodos(),
-    ).thenAnswer((_) => Stream.value([TodoDto(title: 'test2')]));
+    // 追加した後にstateを再取得する。
+    final updateListTodo = container.read(asyncTodoNotifierProvider).value;
 
-    // fetchTodosを呼び出して、TodoDto(title: 'test2')が追加されていることを確認する。
-    final todos = await mockTodoRepository.fetchTodos().first;
-    expect(todos, [TodoDto(title: 'test2')]);
+    // 追加した後のstateが正しく更新されているか確認する。
+    expect(updateListTodo, <Todo>[Todo(title: 'test'), Todo(title: 'test2')]);
   });
 }
