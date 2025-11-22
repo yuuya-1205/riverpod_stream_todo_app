@@ -17,5 +17,9 @@ class TodoNotifier extends AsyncNotifier<List<Todo>> {
   // Todoを追加するメソッド
   Future<void> addTodo(String title) async {
     await ref.read(todoRepositoryProvider).addTodo(title);
+    final currentState = state.value;
+    if (currentState != null) {
+      state = AsyncValue.data([...currentState, Todo(title: title)]);
+    }
   }
 }
